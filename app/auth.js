@@ -1,6 +1,6 @@
 // AARIKA Authentication
 // Google authentication through Firebase Authentication.
-// Uses redirect authentication with explicit browser-local persistence.
+// Uses redirect + browserLocalPersistence for GitHub Pages.
 
 import {
   GoogleAuthProvider,
@@ -17,132 +17,99 @@ import { getAarikaFirebase } from "./firebase.js";
 const ALLOWED_DOMAIN = "baljyoti.com";
 
 function assertAllowedUser(user) {
+  const email = (user?.email || "").trim().toLowerCase();
 
-  const email =
-    (user?.email || "")
-      .trim()
-      .toLowerCase();
-
-  if (
-    !user ||
-    !email ||
-    !email.endsWith(`@${ALLOWED_DOMAIN}`)
-  ) {
+  if (!user || !email || !email.endsWith(`@${ALLOWED_DOMAIN}`)) {
     throw new Error(
       "Only authorised @baljyoti.com accounts can access AARIKA."
     );
   }
 
   if (user.emailVerified === false) {
-    throw new Error(
-      "Your Google email could not be verified."
-    );
+    throw new Error("Your Google email could not be verified.");
   }
 
   return user;
 }
 
 
-/*
- * Google Sign In
- */
+// ----------------------------------------------------
+// GOOGLE LOGIN
+// ----------------------------------------------------
+
 export async function signInWithGoogle() {
+  const { auth } = getAarikaFirebase();
 
-  const { auth } =
-    getAarikaFirebase();
+  // Keep authentication session in browser storage.
+  await setPersistence(auth, browserLocalPersistence);
 
-  /*
-   * IMPORTANT:
-   * Explicitly tell Firebase to keep the
-   * authenticated session in this browser.
-   */
-  await setPersistence(
-    auth,
-    browserLocalPersistence
-  );
-
-  const provider =
-    new GoogleAuthProvider();
+  const provider = new GoogleAuthProvider();
 
   provider.setCustomParameters({
     prompt: "select_account",
     hd: ALLOWED_DOMAIN
   });
 
-  await signInWithRedirect(
-    auth,
-    provider
-  );
+  await signInWithRedirect(auth, provider);
 }
 
 
-/*
- * Complete Google redirect
- */
+// ----------------------------------------------------
+// COMPLETE GOOGLE REDIRECT
+// ----------------------------------------------------
+
 export async function completeGoogleRedirect() {
-
-  const { auth } =
-    getAarikaFirebase();
-
-  /*
-   * Restore browser-local persistence
-   * before reading the redirect result.
-   */
-  await setPersistence(
-    auth,
-    browserLocalPersistence
-  );
-
-  const result =
-    await getRedirectResult(auth);
-
-  if (!result?.user) {
-    return null;
-  }
+  const { auth } = getAarikaFirebase();
 
   try {
+    const result = await getRedirectResult(auth);
 
-    return assertAllowedUser(
-      result.user
-    );
+    if (!result || !result.user) {
+      return null;
+    }
+
+    return assertAllowedUser(result.user);
 
   } catch (error) {
 
-    await signOut(auth);
+    // If authentication was successful but the account
+    // is not authorised, sign the user out.
+    if (
+      error?.message &&
+      error.message.includes("Only authorised")
+    ) {
+      await signOut(auth);
+    }
 
     throw error;
-
   }
 }
 
 
-/*
- * Observe authentication state
- */
+// ----------------------------------------------------
+// AUTH STATE
+// ----------------------------------------------------
+
 export function observeAuth(callback) {
+  const { auth } = getAarikaFirebase();
 
-  const { auth } =
-    getAarikaFirebase();
-
-  return onAuthStateChanged(
-    auth,
-    callback
-  );
+  return onAuthStateChanged(auth, callback);
 }
 
 
-/*
- * Logout
- */
-export async function logout() {
+// ----------------------------------------------------
+// LOGOUT
+// ----------------------------------------------------
 
-  const { auth } =
-    getAarikaFirebase();
+export async function logout() {
+  const { auth } = getAarikaFirebase();
 
   await signOut(auth);
 }
 
 
-export {
-  ALLOWED_DOMAIN
-};
+// ----------------------------------------------------
+// EXPORT
+// ----------------------------------------------------
+
+export { ALLOWED_DOMAIN };
