@@ -1,66 +1,46 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#b31318" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="theme-color" content="#b31318">
   <title>AARIKA | Director Dashboard</title>
-  <style>
-    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18202f;background:#f5f7fa;--red:#b31318;--navy:#111827;--muted:#64748b;--line:#e5e7eb}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh}button{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}
-    aside{background:var(--navy);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh}.brand{font-size:24px;font-weight:850;padding:2px 10px}.brand small{display:block;font-size:10px;letter-spacing:.16em;color:#94a3b8;margin-top:5px}.school-tag{margin:22px 4px 18px;padding:12px;border:1px solid #263244;border-radius:12px;font-size:11px;color:#cbd5e1;line-height:1.5}.school-tag strong{display:block;color:#fff;font-size:13px;margin-bottom:2px}.nav{display:grid;gap:4px}.nav-item{border:0;background:transparent;color:#cbd5e1;text-align:left;padding:11px 12px;border-radius:10px;font-size:14px;cursor:pointer}.nav-item:hover,.nav-item.active{background:var(--red);color:#fff}.side-bottom{position:absolute;left:16px;right:16px;bottom:18px;border-top:1px solid #263244;padding-top:14px}.side-user{font-size:12px;color:#94a3b8;margin-bottom:10px}.signout{width:100%;border:1px solid #374151;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px;cursor:pointer}.signout:hover{background:#1f2937}
-    main{min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5}.mobile-menu{display:none;border:0;background:#f1f5f9;border-radius:9px;padding:9px 11px}.page-title{font-size:20px;font-weight:800}.page-subtitle{font-size:12px;color:var(--muted);margin-top:3px}.profile{display:flex;align-items:center;gap:10px}.profile-text{text-align:right}.profile-name{font-size:13px;font-weight:700}.profile-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.avatar{width:40px;height:40px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:800}
-    .content{padding:28px;max-width:1500px;margin:auto}.section-kicker{font-size:11px;letter-spacing:.14em;font-weight:800;color:var(--red)}.hero{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;display:flex;justify-content:space-between;align-items:center;gap:16px}.hero h2{font-size:27px;margin:6px 0}.hero p{margin:0;color:var(--muted);font-size:14px}.hero-status,.status-pill{font-size:12px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:999px;padding:7px 11px;white-space:nowrap}.dot{width:7px;height:7px;background:#16a34a;border-radius:50%;display:inline-block;margin-right:6px}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}.metric-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.metric-card span{display:block;font-size:13px;color:var(--muted)}.metric-card strong{display:block;font-size:30px;margin:7px 0}.metric-card small{font-size:11px;color:#94a3b8}.dashboard-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-top:16px}.panel,.info-panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}.panel-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.panel-title h3{font-size:16px;margin:0}.panel-title span{font-size:11px;color:#94a3b8}.operation{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #eef0f3;font-size:13px}.operation:last-child{border-bottom:0}.pending{font-size:11px;color:#64748b;background:#f8fafc;border-radius:999px;padding:5px 8px}.quick-link{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;border-bottom:1px solid #eef0f3;background:transparent;text-align:left;padding:14px 0;color:#18202f;cursor:pointer}.quick-link:last-child{border-bottom:0}.quick-link:hover{color:var(--red)}
-    .module-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.module-head h2{font-size:25px;margin:5px 0 0}.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.module-card{border:1px solid var(--line);background:#fff;border-radius:16px;padding:18px;display:flex;align-items:center;gap:13px;text-align:left;cursor:pointer}.module-card:hover{border-color:#cbd5e1;box-shadow:0 8px 24px rgba(15,23,42,.06);transform:translateY(-1px)}.module-icon{width:34px;height:34px;border-radius:10px;background:#fef2f2;color:var(--red);display:grid;place-items:center;font-size:12px;font-weight:800}.module-card strong{display:block;font-size:14px}.module-card small{display:block;color:#94a3b8;font-size:11px;margin-top:4px}.info-panel{margin-top:16px}.info-panel strong{font-size:13px}.info-panel p{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:0}.toast{position:fixed;right:24px;bottom:24px;background:#111827;color:#fff;padding:12px 15px;border-radius:10px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:20}.toast.show{opacity:1;transform:translateY(0)}
-    @media(max-width:1050px){.metric-grid{grid-template-columns:repeat(2,1fr)}.module-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:800px){.app{display:block}aside{position:fixed;left:0;top:0;width:270px;z-index:10;transform:translateX(-100%);transition:.22s;box-shadow:12px 0 30px rgba(0,0,0,.18)}aside.open{transform:translateX(0)}.mobile-menu{display:block}.topbar{padding:0 18px}.profile-text{display:none}.content{padding:18px}.dashboard-grid{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.module-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:520px){.topbar{height:68px}.page-title{font-size:17px}.metric-grid{grid-template-columns:1fr 1fr;gap:9px}.metric-card{padding:14px}.metric-card strong{font-size:24px}.module-grid{grid-template-columns:1fr}.hero h2{font-size:22px}.hero{padding:18px}.content{padding:14px}}
-    /* AARIKA palette override: RED + WHITE only */
-    :root{color:#b31318;background:#fff;--red:#b31318;--navy:#b31318;--muted:#b31318;--line:#b31318}
-    body,main,.content{background:#fff;color:#b31318}
-    aside{background:#b31318;color:#fff}
-    .brand,.brand small,.school-tag,.school-tag strong,.nav-item,.side-user,.signout{color:#fff}
-    .school-tag,.side-bottom{border-color:#fff}
-    .nav-item:hover,.nav-item.active{background:#fff;color:#b31318}
-    .signout{border-color:#fff;background:#b31318}.signout:hover{background:#fff;color:#b31318}
-    .topbar,.hero,.metric-card,.panel,.info-panel,.module-card{background:#fff;color:#b31318;border-color:#b31318}
-    .mobile-menu{background:#fff;color:#b31318}
-    .page-title,.page-subtitle,.profile-name,.profile-role,.hero p,.metric-card span,.metric-card small,.panel-title span,.operation,.quick-link,.module-card strong,.module-card small,.info-panel p{color:#b31318}
-    .hero-status,.status-pill{color:#b31318;background:#fff;border-color:#b31318}.dot{background:#b31318}.pending{color:#b31318;background:#fff}
-    .operation,.quick-link{border-color:#b31318}.module-icon{background:#fff;color:#b31318;border:1px solid #b31318}.module-card:hover{border-color:#b31318;box-shadow:none}
-    .avatar{background:#b31318;color:#fff}.toast{background:#b31318;color:#fff;box-shadow:none}
-  </style>
 </head>
 <body>
   <div class="app">
-    <aside id="sidebar">
-      <div class="brand">AARIKA<small>SCHOOL ERP</small></div>
-      <div class="school-tag"><strong>Bal Jyoti Public School</strong>Director workspace</div>
-      <nav class="nav" aria-label="Main navigation">
-        <button class="nav-item active" data-section="dashboard">Dashboard</button>
-        <button class="nav-item" data-section="school">School</button>
-        <button class="nav-item" data-section="admissions">Admissions</button>
-        <button class="nav-item" data-section="academic">Academic</button>
-        <button class="nav-item" data-section="attendance">Attendance</button>
-        <button class="nav-item" data-section="duties">Duties</button>
-        <button class="nav-item" data-section="transport">Transport</button>
-        <button class="nav-item" data-section="maintenance">Maintenance</button>
-        <button class="nav-item" data-section="reports">Reports & Audit</button>
+    <aside id="sidebar" class="side">
+      <div class="brand"><b>AARIKA</b><small>SCHOOL MANAGEMENT & LEARNING PLATFORM</small></div>
+      <div class="school"><b>Bal Jyoti Public School</b>Director workspace</div>
+      <div class="label">Core Workspace</div>
+      <nav class="nav">
+        <button data-section="dashboard">Overview</button>
+        <button data-section="academic">Academic</button>
+        <button data-section="admissions">Admissions</button>
+        <button data-section="attendance">Attendance</button>
+        <button data-section="duties">Activity</button>
+        <button data-section="school">Administration</button>
+        <button data-section="transport">Transport</button>
+        <button data-section="maintenance">Maintenance</button>
+      </nav>
+      <div class="label">Leadership</div>
+      <nav class="nav">
+        <button data-section="reports">Reports & Audit</button>
+        <button data-section="ai">AI Intelligence</button>
       </nav>
       <div class="side-bottom">
-        <div class="side-user"><strong id="userName">Director</strong><br><span id="userEmail"></span></div>
+        <strong id="userName">Director</strong><br><span id="userEmail"></span>
         <button id="signOut" class="signout" type="button">Sign out</button>
       </div>
     </aside>
     <main>
-      <header class="topbar">
-        <div style="display:flex;align-items:center;gap:12px">
-          <button id="mobileMenu" class="mobile-menu" type="button" aria-label="Open menu">☰</button>
-          <div><div id="pageTitle" class="page-title">Director Dashboard</div><div id="pageSubtitle" class="page-subtitle">School-wide overview and daily operations</div></div>
+      <header class="top">
+        <div class="top-left">
+          <button id="mobileMenu" class="menu" type="button">☰</button>
+          <div><div id="pageTitle" class="title">Director Dashboard</div><div id="pageSubtitle" class="subtitle">School-wide overview and daily operations</div></div>
         </div>
-        <div class="profile"><div class="profile-text"><div class="profile-name" id="schoolName">Bal Jyoti Public School</div><div class="profile-role" id="role">SUPER ADMIN</div></div><div id="avatar" class="avatar">A</div></div>
+        <div class="profile"><div class="profile-text"><div id="schoolName" class="profile-name">Bal Jyoti Public School</div><div id="role" class="profile-role">SUPER ADMIN</div></div><div id="avatar" class="avatar">D</div></div>
       </header>
-      <div id="contentArea" class="content"></div>
+      <section id="contentArea" class="content"></section>
     </main>
   </div>
   <div id="toast" class="toast" role="status"></div>
