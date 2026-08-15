@@ -25,41 +25,57 @@
   </section></main>
   <script type="module">
     import { getAarikaFirebase } from './firebase.js';
-    import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
+    import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js';
 
     const button = document.getElementById('googleSignIn');
     const error = document.getElementById('loginError');
     const ALLOWED_DOMAIN = 'baljyoti.com';
 
-    function showError(message) { error.hidden = false; error.textContent = message; }
+    function showError(message) {
+      error.hidden = false;
+      error.textContent = message;
+    }
+
+    function goToDashboard() {
+      window.location.replace('./dashboard.html');
+    }
 
     try {
       const { auth } = getAarikaFirebase();
       const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ hd: ALLOWED_DOMAIN });
+      provider.setCustomParameters({ hd: ALLOWED_DOMAIN, prompt: 'select_account' });
+
+      // Complete a Google redirect, if this page is returning from Google.
+      getRedirectResult(auth).then(async result => {
+        if (!result?.user) return;
+
+        const email = (result.user.email || '').toLowerCase();
+        if (!result.user.emailVerified || !email.endsWith('@' + ALLOWED_DOMAIN)) {
+          await signOut(auth);
+          showError('Please use your authorised @baljyoti.com account.');
+          return;
+        }
+        goToDashboard();
+      }).catch(e => {
+        console.error('AARIKA redirect login failed', e);
+        showError(e.message || 'Unable to complete Google sign-in.');
+      });
 
       onAuthStateChanged(auth, user => {
         if (user?.email?.toLowerCase().endsWith('@' + ALLOWED_DOMAIN)) {
-          window.location.href = './dashboard.html';
+          goToDashboard();
         }
       });
 
       button.addEventListener('click', async () => {
         error.hidden = true;
         button.disabled = true;
-        button.textContent = 'Signing in…';
+        button.textContent = 'Redirecting to Google…';
         try {
-          const result = await signInWithPopup(auth, provider);
-          const email = (result.user.email || '').toLowerCase();
-          if (!result.user.emailVerified || !email.endsWith('@' + ALLOWED_DOMAIN)) {
-            await auth.signOut();
-            throw new Error('Please use your authorised @baljyoti.com account.');
-          }
-          window.location.href = './dashboard.html';
+          await signInWithRedirect(auth, provider);
         } catch (e) {
           console.error('AARIKA login failed', e);
           showError(e.message || 'Unable to sign in. Please try again.');
-        } finally {
           button.disabled = false;
           button.textContent = 'Continue with Google';
         }
