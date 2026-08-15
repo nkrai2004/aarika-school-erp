@@ -1,15 +1,16 @@
 // AARIKA Firebase configuration
-// Firebase Web configuration is intentionally kept in a separate module.
-// Replace the placeholder values with the Web App configuration from the
-// AARIKA Firebase project before enabling production authentication/data.
+// Firebase Web configuration for the AARIKA School ERP project.
+// These Firebase Web App values are safe to ship to the browser; access is
+// controlled by Firebase Authentication, Firestore Security Rules and
+// authorized domains.
 
 export const AARIKA_FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyDxtqt-TQZ0kkbo5l5qO9aBmV36NxqPctk",
+  authDomain: "aarika-school-erp.firebaseapp.com",
+  projectId: "aarika-school-erp",
+  storageBucket: "aarika-school-erp.firebasestorage.app",
+  messagingSenderId: "927822693870",
+  appId: "1:927822693870:web:2fd0a143d9ef196d6c7aff"
 };
 
 export function isFirebaseConfigured(config = AARIKA_FIREBASE_CONFIG) {
