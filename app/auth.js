@@ -1,11 +1,13 @@
 // AARIKA Authentication
-// Real Google authentication through Firebase Authentication.
-// Authorization is handled separately by AARIKA roles/permissions.
+// Google authentication through Firebase Authentication.
+// Redirect flow is used instead of popup flow to avoid Cross-Origin-Opener-Policy
+// issues on GitHub Pages and custom domains.
 
 import {
   GoogleAuthProvider,
+  getRedirectResult,
   onAuthStateChanged,
-  signInWithPopup,
+  signInWithRedirect,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
@@ -30,9 +32,16 @@ function assertAllowedUser(user) {
 export async function signInWithGoogle() {
   const { auth } = getAarikaFirebase();
   const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
+  provider.setCustomParameters({ prompt: "select_account", hd: ALLOWED_DOMAIN });
 
-  const result = await signInWithPopup(auth, provider);
+  await signInWithRedirect(auth, provider);
+}
+
+export async function completeGoogleRedirect() {
+  const { auth } = getAarikaFirebase();
+  const result = await getRedirectResult(auth);
+
+  if (!result?.user) return null;
 
   try {
     return assertAllowedUser(result.user);
