@@ -1,5 +1,5 @@
 // AARIKA application entry point
-// Firebase Google authentication -> authenticated Director -> dashboard.
+// Google authentication -> authenticated Director -> dashboard.
 
 import { signInWithGoogle, completeGoogleRedirect, observeAuth, logout } from "./auth.js";
 import { isFirebaseConfigured } from "./firebase-config.js";
@@ -16,6 +16,10 @@ function setStatus(message, error = false) {
   status.dataset.error = error ? "true" : "false";
 }
 
+function isAuthorised(user) {
+  return Boolean(user?.email?.toLowerCase().endsWith("@baljyoti.com"));
+}
+
 function showSignedInUser(user) {
   if (userPanel) {
     userPanel.hidden = false;
@@ -25,8 +29,9 @@ function showSignedInUser(user) {
   if (logoutButton) logoutButton.hidden = false;
 }
 
-function isAuthorised(user) {
-  return Boolean(user?.email?.toLowerCase().endsWith("@baljyoti.com"));
+function dashboardUrl() {
+  // Works on GitHub Pages (/aarika-school-erp/app/) and later on aarika.baljyoti.com (/app/).
+  return new URL("dashboard.html", window.location.href).href;
 }
 
 function goToDashboard(user) {
@@ -34,8 +39,7 @@ function goToDashboard(user) {
   routing = true;
   showSignedInUser(user);
   setStatus("Authentication successful. Opening AARIKA dashboard…");
-  // Always use the current GitHub Pages /app/ location.
-  window.location.assign(`${window.location.origin}${window.location.pathname.replace(/\/$/, "")}/dashboard.html`);
+  window.location.assign(dashboardUrl());
 }
 
 async function login() {
@@ -73,8 +77,6 @@ async function initialise() {
     return;
   }
 
-  // First consume the Firebase redirect result. This is important on GitHub Pages:
-  // the browser returns from Google before the auth observer has necessarily fired.
   try {
     const redirectUser = await completeGoogleRedirect();
     if (redirectUser) {
@@ -87,7 +89,6 @@ async function initialise() {
     return;
   }
 
-  // Fallback/session restore for users who are already authenticated.
   observeAuth((user) => {
     if (!user) {
       setStatus("Sign in with your authorised Bal Jyoti Google account.");
