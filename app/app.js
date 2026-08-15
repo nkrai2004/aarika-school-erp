@@ -30,16 +30,14 @@ async function login() {
   }
 
   if (loginButton) loginButton.disabled = true;
-  setStatus("Opening secure Google sign-in…");
+  setStatus("Redirecting to secure Google sign-in…");
 
   try {
-    const user = await signInWithGoogle();
-    const profile = await getOrCreateUserProfile(user);
-    showProfile(profile);
-    setStatus("Signed in successfully. Your AARIKA profile is ready.");
+    // signInWithGoogle uses a full-page redirect. The browser leaves this page,
+    // completes Google authentication, and returns to the AARIKA login page.
+    await signInWithGoogle();
   } catch (error) {
     setStatus(error.message || "Unable to sign in.", true);
-  } finally {
     if (loginButton) loginButton.disabled = false;
   }
 }
@@ -63,10 +61,14 @@ if (!isFirebaseConfigured()) {
 } else {
   observeAuth(async (user) => {
     if (!user) return;
+
     try {
       const profile = await getOrCreateUserProfile(user);
       showProfile(profile);
-      setStatus("Authenticated with Google.");
+      setStatus("Authenticated with Google. Opening AARIKA dashboard…");
+
+      // The dashboard owns the authenticated application shell.
+      window.location.replace("./dashboard.html");
     } catch (error) {
       setStatus(error.message || "Unable to load your AARIKA profile.", true);
     }
