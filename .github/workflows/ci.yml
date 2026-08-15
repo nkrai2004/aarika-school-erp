@@ -1,0 +1,35 @@
+name: AARIKA CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  foundation-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check required foundation files
+        run: |
+          test -f README.md
+          test -f app/index.html
+          test -f app/firebase.js
+          test -f app/auth.js
+          test -f app/permissions.js
+          test -f app/data/schema.js
+          test -f app/data/admissions.js
+          test -f app/data/academics.js
+          test -f app/data/activities.js
+          test -f app/data/administration.js
+          test -f app/data/attendance-leave.js
+          test -f app/data/duties.js
+          test -f app/data/transport.js
+          test -f app/data/maintenance.js
+          test -f app/data/audit.js
+          test -f app/i18n.js
+          test -f app/ai/ai-service.js
+          test -f app/ai/agent-runtime.js
+          echo "AARIKA foundation files present."
