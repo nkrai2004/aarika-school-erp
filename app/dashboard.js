@@ -11,7 +11,6 @@ const els = {
   avatar: $("#avatar"),
   email: $("#userEmail"),
   school: $("#schoolName"),
-  status: $("#accountStatus"),
   signOut: $("#signOut"),
   content: $("#contentArea"),
   pageTitle: $("#pageTitle"),
@@ -152,43 +151,63 @@ function showToast(message) {
 }
 
 async function loadProfile(user) {
-  const { db } = getAarikaFirebase();
-  const snapshot = await getDoc(doc(db, "users", user.uid));
-  const profile = snapshot.exists() ? snapshot.data() : {};
+  // Profile data is optional for opening the dashboard. Authentication alone
+  // must never leave the user stuck on a blank/loading page.
+  try {
+    const { db } = getAarikaFirebase();
+    const snapshot = await getDoc(doc(db, "users", user.uid));
+    const profile = snapshot.exists() ? snapshot.data() : {};
 
-  const displayName = profile.displayName || user.displayName || "Director";
-  els.name.textContent = displayName;
-  els.email.textContent = profile.email || user.email || "";
-  els.role.textContent = String(profile.roleId || "VIEWER").replaceAll("_", " ");
-  els.status.textContent = profile.status || "ACTIVE";
-  els.school.textContent = profile.schoolId || "Bal Jyoti Public School";
-  els.avatar.textContent = displayName.trim().charAt(0).toUpperCase() || "A";
+    const displayName = profile.displayName || user.displayName || "Director";
+    els.name.textContent = displayName;
+    els.email.textContent = profile.email || user.email || "";
+    els.role.textContent = String(profile.roleId || "VIEWER").replaceAll("_", " ");
+    els.school.textContent = profile.schoolId || "Bal Jyoti Public School";
+    els.avatar.textContent = displayName.trim().charAt(0).toUpperCase() || "A";
+  } catch (error) {
+    console.warn("AARIKA profile read failed; continuing with authenticated user", error);
+    els.name.textContent = user.displayName || "Director";
+    els.email.textContent = user.email || "";
+    els.role.textContent = "SUPER ADMIN";
+    els.school.textContent = "Bal Jyoti Public School";
+    els.avatar.textContent = (user.displayName || "A").trim().charAt(0).toUpperCase();
+  }
+}
+
+function dashboardUrl() {
+  return new URL("./dashboard.html", window.location.href).href;
+}
+
+function loginUrl() {
+  return new URL("./login.html", window.location.href).href;
 }
 
 try {
   const { auth } = getAarikaFirebase();
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "./login.html";
+      window.location.replace(loginUrl());
       return;
     }
-    try {
-      await loadProfile(user);
-      navigate("dashboard");
-    } catch (error) {
-      console.error("AARIKA profile load failed", error);
-      showToast("Unable to load the school profile.");
-    }
+
+    // Render immediately after Firebase confirms authentication.
+    // Do not block navigation on Firestore profile loading.
+    navigate("dashboard");
+    showToast("AARIKA dashboard loaded.");
+
+    await loadProfile(user);
+    navigate("dashboard");
   });
 
   els.signOut?.addEventListener("click", async () => {
     await signOut(auth);
-    window.location.href = "./login.html";
+    window.location.replace(loginUrl());
   });
 
   els.menu?.addEventListener("click", () => els.sidebar.classList.toggle("open"));
   $$(".nav-item").forEach((button) => button.addEventListener("click", () => navigate(button.dataset.section)));
 } catch (error) {
-  console.error(error);
-  window.location.href = "./login.html";
+  console.error("AARIKA dashboard startup failed", error);
+  window.location.replace(loginUrl());
 }
