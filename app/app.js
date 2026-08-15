@@ -1,6 +1,8 @@
 // AARIKA application entry point
+// Authentication is handled by Firebase. Once an authorised user is
+// authenticated, this entry point immediately routes to the dashboard.
+
 import { signInWithGoogle, observeAuth, logout } from "./auth.js";
-import { getOrCreateUserProfile } from "./data/user-profile.js";
 import { isFirebaseConfigured } from "./firebase-config.js";
 
 const loginButton = document.querySelector("#googleLogin");
@@ -14,13 +16,17 @@ function setStatus(message, error = false) {
   status.dataset.error = error ? "true" : "false";
 }
 
-function showProfile(profile) {
+function showSignedInUser(user) {
   if (userPanel) {
     userPanel.hidden = false;
-    userPanel.textContent = `${profile.displayName || profile.email} • ${profile.status}`;
+    userPanel.textContent = `${user.displayName || user.email} • Authenticated`;
   }
   if (loginButton) loginButton.hidden = true;
   if (logoutButton) logoutButton.hidden = false;
+}
+
+function goToDashboard() {
+  window.location.replace(new URL("./dashboard.html", window.location.href).href);
 }
 
 async function login() {
@@ -33,8 +39,6 @@ async function login() {
   setStatus("Redirecting to secure Google sign-in…");
 
   try {
-    // signInWithGoogle uses a full-page redirect. The browser leaves this page,
-    // completes Google authentication, and returns to the AARIKA login page.
     await signInWithGoogle();
   } catch (error) {
     setStatus(error.message || "Unable to sign in.", true);
@@ -59,18 +63,16 @@ logoutButton?.addEventListener("click", doLogout);
 if (!isFirebaseConfigured()) {
   setStatus("Foundation ready — Firebase configuration is required for live sign-in.");
 } else {
-  observeAuth(async (user) => {
+  // Firebase restores the authenticated session after Google redirect.
+  // Routing does NOT wait for Firestore. Dashboard loads profile data itself.
+  observeAuth((user) => {
     if (!user) return;
 
-    try {
-      const profile = await getOrCreateUserProfile(user);
-      showProfile(profile);
-      setStatus("Authenticated with Google. Opening AARIKA dashboard…");
+    const email = (user.email || "").trim().toLowerCase();
+    if (!email.endsWith("@baljyoti.com")) return;
 
-      // The dashboard owns the authenticated application shell.
-      window.location.replace("./dashboard.html");
-    } catch (error) {
-      setStatus(error.message || "Unable to load your AARIKA profile.", true);
-    }
+    showSignedInUser(user);
+    setStatus("Authentication successful. Opening AARIKA dashboard…");
+    goToDashboard();
   });
 }
